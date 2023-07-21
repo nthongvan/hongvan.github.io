@@ -9,6 +9,20 @@ FROM (SELECT *
       ORDER BY total_amt_usd DESC
       LIMIT 2) As t2;
 
+--Provide the name for each region for every order, as well as the account name and the unit price for the order
+--You should only provide the results if the standard order quantity exceeds 100 and the poster order quantity exceeds 50.
+
+SELECT r.name region_name, a.name acc_name, o.total_amt_usd/o.total unitprice
+FROM accounts a
+JOIN sales_reps s
+    ON a.sales_rep_id = s.id
+JOIN region r
+    ON s.region_id = r.id 
+JOIN orders o
+    ON o.account_id = a.id
+WHERE o.standard_qty>100 AND o.poster_qty>50
+Order BY unitprice DESC;
+
 --The average amount for each type of paper sold on the first month that any order was placed in the orders table (in terms of quantity)
 
 SELECT AVG(standard_qty) standard, AVG(gloss_qty) gloss, AVG(poster_qty) poster
@@ -73,7 +87,8 @@ SELECT format, COUNT(*)
 FROM sub
 GROUP BY 1;
 
---Each company in the accounts table wants to create an email address for each primary_poc. The email address should be the first name of the primary_poc . last name primary_poc @ company name .com.
+--Each company in the accounts table wants to create an email address for each primary_poc 
+--The email address should be the first name of the primary_poc . last name primary_poc @ company name .com.
 
 WITH t1 AS (
     SELECT LEFT(primary_poc, STRPOS(primary_poc, ' ') -1 ) first_name, RIGHT(primary_poc, LENGTH(primary_poc) - STRPOS(primary_poc, ' ')) last_name, name
